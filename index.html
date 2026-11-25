@@ -4,166 +4,335 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GSP THERMAL</title>
+<meta name="theme-color" content="#080d18">
+<title>GSP THERMAL - Device Monitor</title>
+
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{margin:0;padding:0;box-sizing:border-box}
 body{
- background:#080e1b;color:#fff;
- font-family:Arial,sans-serif;padding:18px;
+ background:#080d18;color:#eaf4ff;
+ font-family:Arial,sans-serif;padding:16px;
 }
 header{
  display:flex;justify-content:space-between;
- align-items:center;margin-bottom:25px;
+ align-items:center;gap:10px;margin-bottom:22px;
 }
-.logo{font-size:23px;font-weight:bold;color:#38bdf8}
-.status{color:#4ade80;font-size:12px}
-h2{font-size:14px;color:#94a3b8;margin-bottom:12px}
-.hero{
- background:linear-gradient(145deg,#142b48,#101827);
- border:1px solid #23456a;border-radius:22px;
- padding:24px;text-align:center;margin-bottom:20px;
- box-shadow:0 10px 35px #0008;
+.logo{font-size:22px;font-weight:900;color:#38bdf8}
+button{
+ background:#12304a;color:#38bdf8;
+ border:1px solid #23577e;border-radius:10px;
+ padding:10px 13px;font-weight:bold;cursor:pointer;
 }
-.temp{font-size:58px;font-weight:bold;color:#38bdf8}
-.hero p{color:#94a3b8;font-size:13px;margin-top:8px}
-.grid{
- display:grid;grid-template-columns:1fr 1fr;
- gap:12px;margin-bottom:22px;
+.hero,.card{
+ background:linear-gradient(145deg,#14243a,#0d1728);
+ border:1px solid #213c5c;border-radius:17px;
+ padding:17px;margin-bottom:13px;
 }
-.card{
- background:#111d30;border:1px solid #253b58;
- border-radius:17px;padding:18px;
-}
-.card small{color:#94a3b8}
-.value{font-size:25px;font-weight:bold;margin-top:12px}
+.hero{text-align:center;padding:24px}
+.hero h1{font-size:27px;color:#38bdf8;margin-bottom:8px}
+.hero p,.muted{color:#8da9c7;font-size:12px}
+h2{font-size:17px;margin:20px 0 12px;color:#60cfff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.card{margin:0;min-width:0}
+.card h3{font-size:13px;color:#8da9c7;margin-bottom:12px}
+.value{font-size:19px;font-weight:bold;overflow-wrap:anywhere}
+.small{font-size:12px;color:#91a9c5;margin-top:7px;overflow-wrap:anywhere}
 .blue{color:#38bdf8}
 .green{color:#4ade80}
-.orange{color:#fb923c}
-button{
- background:#0ea5e9;color:white;border:0;
- padding:12px 15px;border-radius:12px;
- font-weight:bold;cursor:pointer;
+.orange{color:#fbbf24}
+.red{color:#fb7185}
+.status{
+ display:inline-block;padding:5px 9px;border-radius:20px;
+ background:#173d30;color:#4ade80;font-size:11px;
 }
-.controls{display:flex;gap:10px;flex-wrap:wrap}
-canvas{
- width:100%;height:160px;background:#111d30;
- border-radius:15px;margin:12px 0 22px;
+.row{
+ display:flex;justify-content:space-between;
+ align-items:center;gap:10px;margin:12px 0;
+ font-size:13px;
 }
-.float{
- position:fixed;right:15px;bottom:90px;
- background:#142b48;border:2px solid #38bdf8;
- padding:13px;border-radius:50%;
- box-shadow:0 0 20px #0ea5e966;
- font-weight:bold;color:#38bdf8;
-}
-.bar{
- display:none;position:fixed;top:8px;left:5%;
- width:90%;background:#142b48;
- border:1px solid #38bdf8;border-radius:12px;
- padding:12px;text-align:center;
-}
-footer{text-align:center;color:#64748b;font-size:12px;padding:25px}
+.row span:first-child{color:#91a9c5}
+.row span:last-child{text-align:right;overflow-wrap:anywhere}
+.full{grid-column:1/-1}
+footer{text-align:center;color:#617b99;font-size:12px;padding:25px}
+#message{font-size:12px;color:#fbbf24;margin-top:12px}
 </style>
 </head>
+
 <body>
 
 <header>
  <div class="logo">⚡ GSP THERMAL</div>
- <div class="status">● DEMO MODE</div>
+ <button id="langBtn" onclick="toggleLanguage()">हिंदी</button>
 </header>
 
-<div class="hero">
- <h2>PHONE TEMPERATURE</h2>
- <div class="temp" id="mainTemp">36.8°C</div>
- <p id="condition">DEMO DATA · NORMAL</p>
-</div>
+<section class="hero">
+ <h1>GSP THERMAL</h1>
+ <p id="subtitle">REAL DEVICE INFORMATION CENTER</p>
+ <br>
+ <span class="status" id="liveStatus">● READY TO SCAN</span>
+ <br><br>
+ <button onclick="scanDevice()" id="scanBtn">SCAN MY DEVICE</button>
+ <p id="message">No fake sensor values. Only available real data.</p>
+</section>
 
+<h2 id="tempTitle">🌡️ Temperature Monitor</h2>
 <div class="grid">
  <div class="card">
-  <small>🔋 BATTERY TEMP</small>
-  <div class="value blue" id="battery">36.8°C</div>
+  <h3>🔋 Battery Temperature</h3>
+  <div class="value orange" id="batteryTemp">Not Available</div>
+  <div class="small">Android sensor access not provided by normal browser</div>
  </div>
  <div class="card">
-  <small>⚙️ CPU TEMP</small>
-  <div class="value orange">Unavailable</div>
+  <h3>⚙️ CPU Temperature</h3>
+  <div class="value orange" id="cpuTemp">Not Available</div>
+  <div class="small">System sensor access restricted</div>
  </div>
  <div class="card">
-  <small>🎮 GPU TEMP</small>
-  <div class="value orange">Unavailable</div>
+  <h3>🎮 GPU Temperature</h3>
+  <div class="value orange" id="gpuTemp">Not Available</div>
+  <div class="small">System sensor access restricted</div>
  </div>
  <div class="card">
-  <small>🧠 RAM USAGE</small>
-  <div class="value green">Unavailable</div>
+  <h3>🌡️ Thermal Status</h3>
+  <div class="value orange" id="thermal">Not Available</div>
+  <div class="small">Android thermal API unavailable to webpage</div>
  </div>
 </div>
 
-<h2>TEMPERATURE HISTORY</h2>
-<canvas id="chart" width="600" height="160"></canvas>
-
-<h2>FLOATING MONITOR</h2>
-<div class="controls">
- <button onclick="toggleBubble()">Bubble ON/OFF</button>
- <button onclick="toggleBar()">Bar ON/OFF</button>
+<h2 id="deviceTitle">📱 Device Information</h2>
+<div class="card">
+ <div class="row"><span>Device / Browser</span><span id="device">Checking...</span></div>
+ <div class="row"><span>Operating System</span><span id="os">Checking...</span></div>
+ <div class="row"><span>Architecture</span><span id="arch">Checking...</span></div>
+ <div class="row"><span>System Bitness</span><span id="bits">Checking...</span></div>
+ <div class="row"><span>Root Status</span><span id="root">Cannot be verified</span></div>
+ <div class="row"><span>Browser</span><span id="browser">Checking...</span></div>
 </div>
 
-<div class="float" id="bubble">37°</div>
-<div class="bar" id="bar">⚡ GSP THERMAL · 36.8°C · DEMO</div>
+<h2 id="processorTitle">⚡ Processor & Memory</h2>
+<div class="grid">
+ <div class="card">
+  <h3>🧠 Logical CPU Cores</h3>
+  <div class="value blue" id="cores">Checking...</div>
+ </div>
+ <div class="card">
+  <h3>💾 RAM Estimate</h3>
+  <div class="value blue" id="ram">Checking...</div>
+  <div class="small">Browser-reported estimate, not exact physical RAM</div>
+ </div>
+ <div class="card">
+  <h3>🎮 GPU Information</h3>
+  <div class="value blue" id="gpuInfo">Checking...</div>
+ </div>
+ <div class="card">
+  <h3>📺 Screen Resolution</h3>
+  <div class="value blue" id="screen">Checking...</div>
+ </div>
+</div>
+
+<h2 id="batteryTitle">🔋 Battery Information</h2>
+<div class="card">
+ <div class="row"><span>Battery Level</span><span id="batteryLevel">Checking...</span></div>
+ <div class="row"><span>Charging</span><span id="charging">Checking...</span></div>
+ <div class="row"><span>Charging Time</span><span id="chargeTime">Checking...</span></div>
+ <div class="row"><span>Discharging Time</span><span id="dischargeTime">Checking...</span></div>
+</div>
+
+<h2 id="storageTitle">💽 Browser Storage</h2>
+<div class="card">
+ <div class="row"><span>Origin Storage Used</span><span id="storageUsed">Checking...</span></div>
+ <div class="row"><span>Origin Storage Quota</span><span id="storageQuota">Checking...</span></div>
+ <div class="small">This is website storage, NOT total phone storage.</div>
+</div>
+
+<h2 id="networkTitle">📶 Network Information</h2>
+<div class="card">
+ <div class="row"><span>Connection Type</span><span id="network">Checking...</span></div>
+ <div class="row"><span>Effective Connection</span><span id="effective">Checking...</span></div>
+ <div class="row"><span>Estimated Downlink</span><span id="downlink">Checking...</span></div>
+</div>
+
+<h2 id="otherTitle">🛠️ Other Information</h2>
+<div class="card">
+ <div class="row"><span>Browser Language</span><span id="language">Checking...</span></div>
+ <div class="row"><span>Touch Points</span><span id="touch">Checking...</span></div>
+ <div class="row"><span>Pixel Ratio</span><span id="pixel">Checking...</span></div>
+ <div class="row"><span>Cookies Enabled</span><span id="cookies">Checking...</span></div>
+</div>
 
 <footer>
-GSP THERMAL © 2026<br>
-Phone Temperature Monitoring Dashboard
+ GSP THERMAL © 2026<br>
+ Device Information & Temperature Monitor
 </footer>
 
 <script>
-let temp=36.8;
-let history=[];
+let hindi=false;
 
-function update(){
- temp=Number((36+Math.random()*2).toFixed(1));
-
- document.getElementById("mainTemp").innerText=temp+"°C";
- document.getElementById("battery").innerText=temp+"°C";
- document.getElementById("bubble").innerText=temp+"°";
- document.getElementById("bar").innerText=
- "⚡ GSP THERMAL · "+temp+"°C · DEMO";
-
- document.getElementById("condition").innerText=
- "DEMO DATA · "+(temp>37.5?"WARM":"NORMAL");
-
- history.push(temp);
- if(history.length>30)history.shift();
- draw();
+function put(id,value){
+ document.getElementById(id).textContent=value;
 }
 
-function draw(){
- let c=document.getElementById("chart");
- let ctx=c.getContext("2d");
- ctx.clearRect(0,0,c.width,c.height);
- ctx.strokeStyle="#38bdf8";
- ctx.lineWidth=4;
- ctx.beginPath();
-
- history.forEach((v,i)=>{
-  let x=i*(c.width/29);
-  let y=130-(v-35)*35;
-  if(i===0)ctx.moveTo(x,y);
-  else ctx.lineTo(x,y);
- });
- ctx.stroke();
+function getBrowser(){
+ let ua=navigator.userAgent;
+ if(ua.includes("Edg/"))return "Microsoft Edge";
+ if(ua.includes("OPR/"))return "Opera";
+ if(ua.includes("Firefox/"))return "Firefox";
+ if(ua.includes("Chrome/"))return "Chrome / Chromium";
+ if(ua.includes("Safari/"))return "Safari";
+ return "Unknown browser";
 }
 
-function toggleBubble(){
- let b=document.getElementById("bubble");
- b.style.display=b.style.display==="none"?"block":"none";
-}
-function toggleBar(){
- let b=document.getElementById("bar");
- b.style.display=b.style.display==="block"?"none":"block";
+function getOS(){
+ let ua=navigator.userAgent;
+ if(/Android/i.test(ua))return "Android";
+ if(/iPhone|iPad|iPod/i.test(ua))return "iOS";
+ if(/Windows/i.test(ua))return "Windows";
+ if(/Mac OS/i.test(ua))return "macOS";
+ if(/Linux/i.test(ua))return "Linux";
+ return "Unknown";
 }
 
-document.getElementById("bubble").style.display="none";
-setInterval(update,2000);
-update();
+function getGPU(){
+ try{
+  let canvas=document.createElement("canvas");
+  let gl=canvas.getContext("webgl") ||
+         canvas.getContext("experimental-webgl");
+  if(!gl)return "Not Available";
+  let ext=gl.getExtension("WEBGL_debug_renderer_info");
+  if(!ext)return "Protected by browser";
+  return gl.getParameter(ext.UNMASKED_RENDERER_WEBGL);
+ }catch(e){return "Not Available"}
+}
+
+async function scanDevice(){
+ put("liveStatus","● SCANNING");
+ put("message","Reading available browser information...");
+
+ put("device",navigator.userAgent);
+ put("os",getOS());
+ put("browser",getBrowser());
+ put("cores",navigator.hardwareConcurrency ?
+ navigator.hardwareConcurrency : "Not Available");
+
+ put("ram",navigator.deviceMemory ?
+ "~"+navigator.deviceMemory+" GB (estimate)" : "Not Available");
+
+ put("screen",screen.width+" × "+screen.height+" px");
+ put("gpuInfo",getGPU());
+
+ put("touch",navigator.maxTouchPoints);
+ put("pixel",window.devicePixelRatio);
+ put("cookies",navigator.cookieEnabled?"Yes":"No");
+ put("language",navigator.language || "Not Available");
+
+ // Architecture and bitness, when browser permits
+ put("arch","Not Exposed by browser");
+ put("bits","Cannot reliably detect");
+
+ if(navigator.userAgentData){
+  try{
+   let data=await navigator.userAgentData.getHighEntropyValues(
+    ["architecture","bitness","model","platformVersion"]
+   );
+   put("device",data.model || navigator.userAgentData.platform || getOS());
+   put("os",navigator.userAgentData.platform+
+    (data.platformVersion?" "+data.platformVersion:""));
+   put("arch",data.architecture || "Not Available");
+   put("bits",data.bitness ? data.bitness+"-bit" :
+    "Not Available");
+  }catch(e){}
+ }
+
+ // Root cannot be reliably checked from a normal webpage
+ put("root","Cannot be verified by website");
+
+ // No browser API exposes phone battery temperature
+ put("batteryTemp","Not Available");
+ put("cpuTemp","Not Available");
+ put("gpuTemp","Not Available");
+ put("thermal","Not Available");
+
+ // Battery API: level and charging only
+ if(navigator.getBattery){
+  try{
+   const b=await navigator.getBattery();
+   function batteryUpdate(){
+    put("batteryLevel",Math.round(b.level*100)+"%");
+    put("charging",b.charging?"Yes":"No");
+    put("chargeTime",Number.isFinite(b.chargingTime)?
+     Math.round(b.chargingTime/60)+" min":"Not Available");
+    put("dischargeTime",Number.isFinite(b.dischargingTime)?
+     Math.round(b.dischargingTime/60)+" min":"Not Available");
+   }
+   batteryUpdate();
+   b.addEventListener("levelchange",batteryUpdate);
+   b.addEventListener("chargingchange",batteryUpdate);
+  }catch(e){
+   put("batteryLevel","Not Available");
+   put("charging","Not Available");
+  }
+ }else{
+  put("batteryLevel","Browser does not support API");
+  put("charging","Browser does not support API");
+ }
+
+ // Website origin storage, not whole device storage
+ if(navigator.storage && navigator.storage.estimate){
+  try{
+   let s=await navigator.storage.estimate();
+   let mb=x=>(x/1024/1024).toFixed(2)+" MB";
+   put("storageUsed",mb(s.usage||0));
+   put("storageQuota",mb(s.quota||0));
+  }catch(e){
+   put("storageUsed","Not Available");
+   put("storageQuota","Not Available");
+  }
+ }else{
+  put("storageUsed","Not Available");
+  put("storageQuota","Not Available");
+ }
+
+ // Network API
+ let n=navigator.connection ||
+       navigator.mozConnection ||
+       navigator.webkitConnection;
+
+ if(n){
+  put("network",n.type||"Not Available");
+  put("effective",n.effectiveType||"Not Available");
+  put("downlink",n.downlink?n.downlink+" Mbps":"Not Available");
+ }else{
+  put("network","Not exposed");
+  put("effective","Not exposed");
+  put("downlink","Not exposed");
+ }
+
+ put("liveStatus","● SCAN COMPLETE");
+ put("message","Only browser-accessible information is shown.");
+}
+
+function toggleLanguage(){
+ hindi=!hindi;
+ document.getElementById("langBtn").textContent=
+  hindi?"English":"हिंदी";
+
+ const translations={
+  subtitle:["REAL DEVICE INFORMATION CENTER","असली डिवाइस जानकारी केंद्र"],
+  scanBtn:["SCAN MY DEVICE","मेरा फोन स्कैन करें"],
+  tempTitle:["🌡️ Temperature Monitor","🌡️ तापमान मॉनिटर"],
+  deviceTitle:["📱 Device Information","📱 फोन की जानकारी"],
+  processorTitle:["⚡ Processor & Memory","⚡ प्रोसेसर और मेमोरी"],
+  batteryTitle:["🔋 Battery Information","🔋 बैटरी की जानकारी"],
+  storageTitle:["💽 Browser Storage","💽 वेबसाइट स्टोरेज"],
+  networkTitle:["📶 Network Information","📶 नेटवर्क की जानकारी"],
+  otherTitle:["🛠️ Other Information","🛠️ अन्य जानकारी"]
+ };
+ for(let id in translations){
+  put(id,translations[id][hindi?1:0]);
+ }
+}
+
+scanDevice();
 </script>
 </body>
 </html>
